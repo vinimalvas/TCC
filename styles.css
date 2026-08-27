@@ -1,14 +1,10 @@
 /* =========================================================
-   ARENA DO SABER — identidade visual
-   Conceito: caderno de fichas de estudo + placar de duelo.
-   Ficha (flashcard) = cartão índice picotado sobre fundo tinta.
-   Quiz/Competição = placar de arena com marcador dourado x teal.
+   ARENA DO SABER — Identidade Visual
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  /* cor */
   --ink: #12162a;
   --ink-2: #1c2140;
   --ink-3: #272d54;
@@ -25,12 +21,10 @@
   --muted: #9ba0c2;
   --muted-ink: #75798f;
 
-  /* tipografia */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'Space Mono', 'Courier New', monospace;
 
-  /* forma */
   --radius: 14px;
   --radius-sm: 8px;
 }
@@ -87,7 +81,7 @@ button {
   margin-top: 4px;
 }
 
-/* =================== SCOREBOARD NAV =================== */
+/* =================== NAV =================== */
 
 .nav-bar {
   display: flex;
@@ -144,6 +138,46 @@ button {
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================== SELETOR DE TÓPICOS =================== */
+
+.topic-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 18px;
+}
+
+.topic-selector-container label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.topic-selector-container select {
+  flex: 1;
+  background: var(--ink);
+  color: var(--text-light);
+  border: 1px solid var(--ink-3);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+
+.topic-selector-container select:focus {
+  border-color: var(--gold);
 }
 
 /* =================== PUNCH-CARD PROGRESS =================== */
@@ -282,10 +316,6 @@ button {
   color: #3a3d33;
 }
 
-#card-teach strong {
-  color: var(--teal-dark);
-}
-
 .card-controls {
   text-align: center;
   margin-top: 22px;
@@ -407,7 +437,7 @@ button {
   color: var(--text-light);
 }
 
-/* =================== ARENA (COMPETIÇÃO 1V1) =================== */
+/* =================== ARENA 1V1 =================== */
 
 .vs-banner {
   display: flex;
@@ -512,35 +542,6 @@ button {
   color: var(--gold);
 }
 
-/* =================== ESTADOS DE CARREGAMENTO / ERRO =================== */
-
-.status-banner {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  text-align: center;
-  color: var(--muted);
-  padding: 10px;
-}
-
-.status-banner.error {
-  color: var(--danger);
-}
-
-/* =================== ACESSIBILIDADE =================== */
-
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
 /* =================== RESPONSIVO =================== */
 
 @media (max-width: 480px) {
@@ -548,4 +549,5 @@ input:focus-visible {
   .nav-btn { font-size: 0.68rem; padding: 10px 6px; }
   #card-title, #comp-play-q { font-size: 1.1rem; }
   .flashcard-static { padding: 24px 18px 20px; }
+  .topic-selector-container { flex-direction: column; align-items: stretch; }
 }
