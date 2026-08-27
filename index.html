@@ -22,6 +22,32 @@
 
     <!-- ABA DE FICHAS DE ESTUDO -->
     <div id="tab-cards" class="tab-content active">
+      <!-- SELETOR DE TÓPICOS -->
+      <div class="topic-selector-container">
+        <label for="topic-select">🎯 Tópico:</label>
+        <select id="topic-select" onchange="changeTopic(event)">
+          <option value="all">✨ Todos os Tópicos</option>
+          <option value="Comunicação Empresarial">📢 Comunicação Empresarial</option>
+          <option value="Educação Física">🏃 Educação Física</option>
+          <option value="Física">⚛️ Física</option>
+          <option value="Gestão de Operações">⚙️ Gestão de Operações</option>
+          <option value="Gestão Financeira e Contabilidade">📊 Gestão Financeira e Contabilidade</option>
+          <option value="História">📜 História</option>
+          <option value="Inovação e Desenvolvimento de Negócios">🚀 Inovação e Desenvolvimento de Negócios</option>
+          <option value="Língua Portuguesa">✍️ Língua Portuguesa</option>
+          <option value="Marketing Estratégico">🎯 Marketing Estratégico</option>
+          <option value="Matemática">📐 Matemática</option>
+          <option value="História do Cinema">🎬 História do Cinema</option>
+          <option value="Design de Jogos e Gamificação">🎮 Design de Jogos e Gamificação</option>
+          <option value="Jornalismo Esportivo">🎙️ Jornalismo Esportivo</option>
+          <option value="E-sports e Cultura Digital">👾 E-sports e Cultura Digital</option>
+          <option value="Produção Audiovisual">📹 Produção Audiovisual</option>
+          <option value="Sociologia do Esporte">🏟️ Sociologia do Esporte</option>
+          <option value="Animação e Efeitos Visuais">🎨 Animação e Efeitos Visuais</option>
+          <option value="História dos Jogos de Tabuleiro">🎲 História dos Jogos de Tabuleiro</option>
+        </select>
+      </div>
+
       <div class="card-header">
         <span class="progress-label" id="card-counter">Ficha 0/10</span>
         <div id="punch-track" class="punch-track" aria-hidden="true"></div>
@@ -35,7 +61,7 @@
           </div>
           <h2 id="card-title">Aguardando conteúdos...</h2>
           <hr />
-          <p id="card-teach">Carregando informações da API...</p>
+          <p id="card-teach">Carregando informações...</p>
         </div>
       </div>
 
