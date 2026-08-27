@@ -1,0 +1,551 @@
+/* =========================================================
+   ARENA DO SABER — identidade visual
+   Conceito: caderno de fichas de estudo + placar de duelo.
+   Ficha (flashcard) = cartão índice picotado sobre fundo tinta.
+   Quiz/Competição = placar de arena com marcador dourado x teal.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  /* cor */
+  --ink: #12162a;
+  --ink-2: #1c2140;
+  --ink-3: #272d54;
+  --parchment: #f7f2e4;
+  --parchment-2: #eee5cd;
+  --gold: #e3a73c;
+  --gold-dark: #b9812a;
+  --teal: #3f8f8a;
+  --teal-dark: #2c6864;
+  --success: #4caf7d;
+  --danger: #dd5b43;
+  --text-ink: #1c1f2e;
+  --text-light: #f4efe0;
+  --muted: #9ba0c2;
+  --muted-ink: #75798f;
+
+  /* tipografia */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+
+  /* forma */
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--ink);
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(227, 167, 60, 0.10), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(63, 143, 138, 0.12), transparent 50%);
+  color: var(--text-light);
+  font-family: var(--font-body);
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* =================== SHELL =================== */
+
+.app-container {
+  width: 100%;
+  max-width: 720px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.app-header .kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.app-header h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+/* =================== SCOREBOARD NAV =================== */
+
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 24px;
+}
+
+.nav-btn {
+  flex: 1;
+  padding: 12px 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: var(--ink-3);
+  color: var(--text-light);
+}
+
+.nav-btn.active {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =================== TAB CONTENT =================== */
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fade-in 0.25s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================== PUNCH-CARD PROGRESS =================== */
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.card-header .progress-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.punch-track {
+  display: flex;
+  gap: 6px;
+}
+
+.punch-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  border: 1px solid var(--muted-ink);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.punch-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+/* =================== FICHA (FLASHCARD) =================== */
+
+.flashcard-container {
+  width: 100%;
+  margin: 4px 0 20px;
+  perspective: 1000px;
+}
+
+.flashcard-static {
+  position: relative;
+  background: var(--parchment);
+  color: var(--text-ink);
+  border-radius: var(--radius);
+  padding: 30px 26px 26px;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
+  transform: rotate(-0.6deg);
+}
+
+.flashcard-static::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 0;
+  border-top: 2px dashed rgba(28, 31, 46, 0.18);
+}
+
+.flashcard-static::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 24px;
+  right: 24px;
+  height: 8px;
+  background-image: radial-gradient(circle, var(--ink) 2.5px, transparent 2.6px);
+  background-size: 22px 8px;
+  background-repeat: repeat-x;
+  opacity: 0.12;
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  margin-top: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 13px;
+  background-color: var(--ink);
+  color: var(--text-light);
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.medal {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  border: 2px solid rgba(28, 31, 46, 0.15);
+  flex-shrink: 0;
+}
+
+.medal[data-level="easy"] { background: #cd9a5b; }
+.medal[data-level="medium"] { background: #c7cdd6; }
+.medal[data-level="hard"] { background: #e8c25a; }
+
+#card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  margin-bottom: 14px;
+}
+
+.flashcard-static hr {
+  border: 0;
+  height: 1px;
+  background: rgba(28, 31, 46, 0.12);
+  margin: 4px 0 16px;
+}
+
+#card-teach {
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-line;
+  text-align: left;
+  color: #3a3d33;
+}
+
+#card-teach strong {
+  color: var(--teal-dark);
+}
+
+.card-controls {
+  text-align: center;
+  margin-top: 22px;
+}
+
+/* =================== BOTÕES =================== */
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  padding: 13px 26px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.12s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =================== QUIZ =================== */
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#quiz-q {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.option-btn {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--ink-3);
+  background: var(--ink-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-light);
+  border-left: 4px solid transparent;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-left-color: var(--gold);
+  background: var(--ink-3);
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-btn.correct {
+  background: var(--success);
+  border-color: var(--success);
+  color: #0d1f14;
+  font-weight: 700;
+}
+
+.option-btn.wrong {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #2b0c07;
+  font-weight: 700;
+}
+
+#quiz-result, #comp-result {
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+#quiz-result h2, #comp-result h2 {
+  font-family: var(--font-display);
+  margin-bottom: 12px;
+}
+
+#quiz-score-msg {
+  white-space: pre-line;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: var(--text-light);
+}
+
+/* =================== ARENA (COMPETIÇÃO 1V1) =================== */
+
+.vs-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.vs-banner .side {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.vs-banner .side.p1 { background: rgba(227, 167, 60, 0.16); color: var(--gold); }
+.vs-banner .side.p2 { background: rgba(63, 143, 138, 0.22); color: var(--teal); }
+
+.vs-banner .vs-mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+#comp-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+#comp-setup > p {
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  background: var(--ink-2);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: 1px solid var(--ink-3);
+  background: var(--ink);
+  color: var(--text-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+}
+
+.form-group input::placeholder {
+  color: var(--muted-ink);
+}
+
+.form-group input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold);
+}
+
+#comp-player-turn {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+#comp-play-q {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+#comp-score-p1, #comp-score-p2 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  margin: 4px 0;
+}
+
+#comp-winner {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-top: 14px;
+  color: var(--gold);
+}
+
+/* =================== ESTADOS DE CARREGAMENTO / ERRO =================== */
+
+.status-banner {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-align: center;
+  color: var(--muted);
+  padding: 10px;
+}
+
+.status-banner.error {
+  color: var(--danger);
+}
+
+/* =================== ACESSIBILIDADE =================== */
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =================== RESPONSIVO =================== */
+
+@media (max-width: 480px) {
+  .app-header h1 { font-size: 1.5rem; }
+  .nav-btn { font-size: 0.68rem; padding: 10px 6px; }
+  #card-title, #comp-play-q { font-size: 1.1rem; }
+  .flashcard-static { padding: 24px 18px 20px; }
+}

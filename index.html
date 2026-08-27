@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena do Saber — Plataforma de Estudos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <span class="kicker">Estude · Teste · Dispute</span>
+      <h1>🏛️ Arena do Saber</h1>
+    </header>
+
+    <!-- NAVEGAÇÃO -->
+    <nav class="nav-bar">
+      <button id="nav-cards" class="nav-btn active" onclick="switchTab('cards', event)">📚 Fichas</button>
+      <button id="nav-quiz" class="nav-btn" onclick="switchTab('quiz', event)" disabled>🎯 Quiz (Bloqueado)</button>
+      <button id="nav-comp" class="nav-btn" onclick="switchTab('comp', event)">⚔️ Duelo 1v1</button>
+    </nav>
+
+    <!-- ABA DE FICHAS DE ESTUDO -->
+    <div id="tab-cards" class="tab-content active">
+      <div class="card-header">
+        <span class="progress-label" id="card-counter">Ficha 0/10</span>
+        <div id="punch-track" class="punch-track" aria-hidden="true"></div>
+      </div>
+
+      <div id="active-card" class="flashcard-container">
+        <div class="flashcard-static">
+          <div class="card-top-row">
+            <span id="card-subject" class="badge">Carregando...</span>
+            <span id="card-medal" class="medal" data-level="easy" title="Nível de dificuldade">🟢</span>
+          </div>
+          <h2 id="card-title">Aguardando conteúdos...</h2>
+          <hr />
+          <p id="card-teach">Carregando informações da API...</p>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button id="btn-next-card" class="btn-primary" onclick="nextFlashcard()">Próxima ficha ➔</button>
+      </div>
+    </div>
+
+    <!-- ABA DE QUIZ -->
+    <div id="tab-quiz" class="tab-content">
+      <div id="quiz-area">
+        <div class="quiz-header">
+          <span id="quiz-counter">Pergunta 1/10</span>
+          <span id="quiz-subject" class="badge">Categoria</span>
+        </div>
+        <h2 id="quiz-q">Pergunta do Quiz...</h2>
+        <div id="quiz-options" class="options-grid"></div>
+      </div>
+
+      <div id="quiz-result" style="display: none;">
+        <h2>Resultado do Quiz</h2>
+        <p id="quiz-score-msg"></p>
+        <button class="btn-primary" onclick="resetCycle()">Continuar / Tentar novamente</button>
+      </div>
+    </div>
+
+    <!-- ABA DE COMPETIÇÃO MULTIPLAYER -->
+    <div id="tab-comp" class="tab-content">
+      <div class="vs-banner">
+        <span class="side p1">Jogador 1</span>
+        <span class="vs-mark">VS</span>
+        <span class="side p2">Jogador 2</span>
+      </div>
+
+      <!-- SETUP -->
+      <div id="comp-setup">
+        <h2 id="comp-title">Jogador 1: crie 5 perguntas</h2>
+        <p>Perguntas adicionadas: <span id="comp-q-count">0</span>/5</p>
+        <div class="form-group">
+          <input type="text" id="comp-q" placeholder="Pergunta" autocomplete="off">
+          <input type="text" id="comp-ans" placeholder="Resposta correta" autocomplete="off">
+          <input type="text" id="comp-w1" placeholder="Opção incorreta 1" autocomplete="off">
+          <input type="text" id="comp-w2" placeholder="Opção incorreta 2" autocomplete="off">
+          <input type="text" id="comp-w3" placeholder="Opção incorreta 3" autocomplete="off">
+          <button class="btn-primary" onclick="addCompQuestion()">Adicionar pergunta</button>
+        </div>
+      </div>
+
+      <!-- JOGO -->
+      <div id="comp-play" style="display: none;">
+        <h3 id="comp-player-turn">Turno do jogador</h3>
+        <h2 id="comp-play-q">Pergunta...</h2>
+        <div id="comp-options" class="options-grid"></div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="comp-result" style="display: none;">
+        <h2>Fim do duelo!</h2>
+        <p id="comp-score-p1"></p>
+        <p id="comp-score-p2"></p>
+        <h3 id="comp-winner"></h3>
+        <button class="btn-primary" onclick="resetComp()">Nova partida</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
