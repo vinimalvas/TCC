@@ -1,23 +1,17 @@
 'use strict';
 
 /* =========================================================
-   ARENA DO SABER — Lógica da Aplicação
+   ARENA DO SABER — lógica da aplicação
+   Fontes de dados: Open Trivia DB (perguntas) + MyMemory (tradução PT-BR)
    ========================================================= */
 
 // --- CONFIGURAÇÃO ---
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const DIFFICULTY_LABELS = { easy: 'Fácil 🟢', medium: 'Médio 🟡', hard: 'Difícil 🔴' };
 const DIFFICULTY_EMOJI = { easy: '🟢', medium: '🟡', hard: '🔴' };
-
-const TOPICS = [
-  'Comunicação Empresarial', 'Educação Física', 'Física', 'Gestão de Operações',
-  'Gestão Financeira e Contabilidade', 'História', 'Inovação e Desenvolvimento de Negócios',
-  'Língua Portuguesa', 'Marketing Estratégico', 'Matemática', 'História do Cinema',
-  'Design de Jogos e Gamificação', 'Jornalismo Esportivo', 'E-sports e Cultura Digital',
-  'Produção Audiovisual', 'Sociologia do Esporte', 'Animação e Efeitos Visuais',
-  'História dos Jogos de Tabuleiro'
-];
-
+// Categorias OpenTDB — Exatas: 17 Ciências/Natureza, 18 Computação, 19 Matemática
+//                       Humanas: 22 Geografia, 23 História, 24 Política
+const TARGET_CATEGORIES = [17, 18, 19, 22, 23, 24];
 const CARDS_PER_ROUND = 10;
 const PASS_THRESHOLD = 7;
 const ANSWER_REVEAL_MS = 1200;
@@ -25,7 +19,6 @@ const COMP_QUESTIONS_PER_PLAYER = 5;
 
 // --- ESTADO GLOBAL ---
 const state = {
-  selectedCategory: 'all',
   modules: [],
   availableModules: [],
   viewedCards: [],
@@ -35,7 +28,7 @@ const state = {
   currentQuizIndex: 0,
   quizScore: 0,
 
-  compPhase: 1, // 1: P1 cria, 2: P2 responde, 3: P2 cria, 4: P1 responde, 5: resultado
+  compPhase: 1, // 1: P1 cria perguntas, 2: P2 responde, 3: P2 cria, 4: P1 responde, 5: resultado
   p1Questions: [],
   p2Questions: [],
   p1Score: 0,
@@ -45,13 +38,15 @@ const state = {
   isLoading: false,
 };
 
+// Evita traduzir o mesmo texto mais de uma vez por sessão.
+const translationCache = new Map();
+
 // --- CACHE DE ELEMENTOS DO DOM ---
 const el = {};
 function cacheElements() {
   const ids = [
     'nav-cards', 'nav-quiz', 'nav-comp',
     'tab-cards', 'tab-quiz', 'tab-comp',
-    'topic-select',
     'card-counter', 'punch-track', 'card-subject', 'card-medal',
     'card-title', 'card-teach', 'btn-next-card',
     'quiz-area', 'quiz-result', 'quiz-counter', 'quiz-subject', 'quiz-q', 'quiz-options', 'quiz-score-msg',
@@ -62,54 +57,143 @@ function cacheElements() {
   ];
   ids.forEach(id => { el[toCamel(id)] = document.getElementById(id); });
 }
-
 function toCamel(id) {
   return id.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+}
+
+// --- UTILITÁRIOS ---
+function decodeHTML(text) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = text;
+  return txt.value;
 }
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function setButtonsBusy(container, busy) {
   container.querySelectorAll('button').forEach(b => { b.disabled = busy; });
 }
 
-// --- GERAÇÃO DE CONTEÚDO POR TÓPICO ---
-function generateTopicModules(topic, difficulty) {
-  const diffLabel = DIFFICULTY_LABELS[difficulty];
+// --- TRADUÇÃO (MYMEMORY API, com cache para reduzir chamadas repetidas) ---
+async function translateToPt(text) {
+  if (!text) return text;
+  if (translationCache.has(text)) return translationCache.get(text);
 
-  return Array.from({ length: CARDS_PER_ROUND }, (_, i) => ({
-    subject: topic,
+  try {
+    const response = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|pt-BR`
+    );
+    if (!response.ok) throw new Error(`Falha na tradução (${response.status})`);
+    const data = await response.json();
+    const translated = data?.responseData?.translatedText || text;
+    translationCache.set(text, translated);
+    return translated;
+  } catch (error) {
+    console.warn('Tradução indisponível, mantendo texto original:', error);
+    translationCache.set(text, text);
+    return text;
+  }
+}
+
+// --- BUSCA DE PERGUNTAS NA OPENTDB, COM NOVA TENTATIVA EM CASO DE LIMITE DE TAXA ---
+async function fetchTriviaBatch(difficulty, category) {
+  const url = `https://opentdb.com/api.php?amount=${CARDS_PER_ROUND}&type=multiple&difficulty=${difficulty}&category=${category}`;
+  let response = await fetch(url);
+
+  // A OpenTDB limita a 1 requisição a cada 5s por IP (HTTP 429).
+  if (response.status === 429) {
+    await sleep(2000);
+    response = await fetch(url);
+  }
+
+  const data = await response.json();
+  if (data.results && data.results.length > 0) return data.results;
+
+  // Sem resultados para essa combinação de categoria/dificuldade: tenta sem filtro de categoria.
+  const fallbackUrl = `https://opentdb.com/api.php?amount=${CARDS_PER_ROUND}&type=multiple&difficulty=${difficulty}`;
+  const fallbackResponse = await fetch(fallbackUrl);
+  const fallbackData = await fallbackResponse.json();
+  return fallbackData.results || [];
+}
+
+async function buildModuleFromItem(item, difficulty) {
+  const rawCategory = decodeHTML(item.category);
+  const rawQuestion = decodeHTML(item.question);
+  const rawAnswer = decodeHTML(item.correct_answer);
+  const rawWrongs = item.incorrect_answers.map(decodeHTML);
+
+  const [category, question, answer, ...wrongAnswers] = await Promise.all([
+    translateToPt(rawCategory),
+    translateToPt(rawQuestion),
+    translateToPt(rawAnswer),
+    ...rawWrongs.map(translateToPt),
+  ]);
+
+  const diffLabel = DIFFICULTY_LABELS[difficulty];
+  return {
+    subject: category,
     difficulty,
-    title: `Conceito ${i + 1}: ${topic}`,
-    teach: `Ficha de estudo sobre ${topic} (Nível: ${diffLabel}).\n\n💡 Ponto-chave ${i + 1}: Definição prática e aplicação dos conceitos fundamentais de ${topic}.`,
-    quizQ: `Qual é o princípio fundamental do conceito ${i + 1} em ${topic}?`,
-    quizAns: `Princípio correto de ${topic}`,
-    wrong: [
-      `Alternativa incorreta A de ${topic}`,
-      `Alternativa incorreta B de ${topic}`,
-      `Alternativa incorreta C de ${topic}`
-    ]
+    title: `Tópico: ${category} | Nível: ${diffLabel}`,
+    teach: `Pergunta de estudo:\n"${question}"\n\n💡 Resposta principal: ${answer}`,
+    quizQ: question,
+    quizAns: answer,
+    wrong: wrongAnswers,
+  };
+}
+
+function buildFallbackModules(difficulty) {
+  return Array.from({ length: CARDS_PER_ROUND }, (_, i) => ({
+    subject: 'Geral',
+    difficulty,
+    title: `Conceito ${i + 1}`,
+    teach: 'Não foi possível carregar este conteúdo da API. Verifique sua conexão e tente novamente.',
+    quizQ: `Pergunta de teste ${i + 1}?`,
+    quizAns: 'Correta',
+    wrong: ['Incorreta 1', 'Incorreta 2', 'Incorreta 3'],
   }));
 }
 
 async function fetchNewModulesFromAPI() {
   const difficulty = DIFFICULTIES[state.currentDiffIndex];
-  
-  const activeTopic = state.selectedCategory === 'all'
-    ? TOPICS[Math.floor(Math.random() * TOPICS.length)]
-    : state.selectedCategory;
+  el.cardTitle.innerText = `🌐 Carregando conteúdos (${DIFFICULTY_LABELS[difficulty]})...`;
+  el.cardTeach.innerText = 'Buscando temas...';
 
-  el.cardTitle.innerText = `🌐 Carregando ${activeTopic}...`;
-  el.cardTeach.innerText = `Preparando fichas do nível ${DIFFICULTY_LABELS[difficulty]}...`;
+  try {
+    const selectElement = document.getElementById('category-select');
+    const selectValue = selectElement ? selectElement.value : 'random';
+    let category;
 
-  state.modules = generateTopicModules(activeTopic, difficulty);
+    if (selectValue === 'random') {
+      category = TARGET_CATEGORIES[Math.floor(Math.random() * TARGET_CATEGORIES.length)];
+    } else {
+      category = parseInt(selectValue);
+    }
+
+    const results = await fetchTriviaBatch(difficulty, category);
+
+    if (results.length === 0) throw new Error('Nenhuma pergunta retornada pela API.');
+
+    state.modules = await Promise.all(results.map(item => buildModuleFromItem(item, difficulty)));
+  } catch (error) {
+    console.error('Erro ao carregar dados da API:', error);
+    el.cardTeach.innerText = 'Não foi possível buscar novas perguntas agora. Usando conteúdo de reserva.';
+    state.modules = buildFallbackModules(difficulty);
+  }
 }
 
-async function changeTopic(event) {
-  state.selectedCategory = event.target.value;
-  await initFlashcards();
+// --- NOVA FUNÇÃO PARA TROCAR A MATÉRIA ---
+function changeCategory() {
+  if (state.isLoading) return; 
+  
+  state.currentDiffIndex = 0; 
+  switchTab('cards');
+  initFlashcards();
 }
 
 // --- NAVEGAÇÃO ENTRE ABAS ---
@@ -270,6 +354,7 @@ function finishQuiz() {
   }
 }
 
+// --- PROGRESSÃO DE DIFICULDADE ---
 function resetCycle() {
   if (state.quizScore >= PASS_THRESHOLD) {
     if (state.currentDiffIndex < DIFFICULTIES.length - 1) state.currentDiffIndex++;
