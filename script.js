@@ -9,9 +9,8 @@
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const DIFFICULTY_LABELS = { easy: 'Fácil 🟢', medium: 'Médio 🟡', hard: 'Difícil 🔴' };
 const DIFFICULTY_EMOJI = { easy: '🟢', medium: '🟡', hard: '🔴' };
-// Categorias OpenTDB — Exatas: 17 Ciências/Natureza, 18 Computação, 19 Matemática
-//                       Humanas: 22 Geografia, 23 História, 24 Política
-const TARGET_CATEGORIES = [17, 18, 19, 22, 23, 24];
+// IDs mapeados baseados nas opções do select (9, 10, 17, 18, 19, 21, 23)
+const TARGET_CATEGORIES = [9, 10, 17, 18, 19, 21, 23];
 const CARDS_PER_ROUND = 10;
 const PASS_THRESHOLD = 7;
 const ANSWER_REVEAL_MS = 1200;
@@ -166,7 +165,8 @@ async function fetchNewModulesFromAPI() {
 
   try {
     const selectElement = document.getElementById('category-select');
-    const selectValue = selectElement ? selectElement.value : 'random';
+    // Pegando valor padrão como 9 se falhar
+    const selectValue = selectElement ? selectElement.value : '9';
     let category;
 
     if (selectValue === 'random') {
