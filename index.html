@@ -13,25 +13,32 @@
       <h1>🏛️ Arena do Saber</h1>
     </header>
 
+    <!-- NAVEGAÇÃO -->
     <nav class="nav-bar">
       <button id="nav-cards" class="nav-btn active" onclick="switchTab('cards', event)">📚 Fichas</button>
       <button id="nav-quiz" class="nav-btn" onclick="switchTab('quiz', event)" disabled>🎯 Quiz (Bloqueado)</button>
       <button id="nav-comp" class="nav-btn" onclick="switchTab('comp', event)">⚔️ Duelo 1v1</button>
     </nav>
 
+    <!-- NOVO FILTRO DE MATÉRIAS (Mapeado para categorias OpenTDB) -->
     <div class="category-filter" style="margin-bottom: 20px; text-align: center;">
       <label for="category-select" style="color: var(--muted); font-family: var(--font-mono); font-size: 0.8rem; margin-right: 10px;">ESCOLHA A MATÉRIA:</label>
-      <select id="category-select" onchange="changeCategory()" style="padding: 8px 12px; border-radius: var(--radius-sm); background: var(--ink-2); color: var(--text-light); border: 1px solid var(--ink-3); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer;">
-        <option value="random">🧠 Misturar Todas</option>
-        <option value="17">🧪 Ciências / Natureza</option>
-        <option value="18">💻 Computação</option>
-        <option value="19">📐 Matemática</option>
-        <option value="22">🌍 Geografia</option>
+      <select id="category-select" onchange="changeCategory()" style="padding: 8px 12px; border-radius: var(--radius-sm); background: var(--ink-2); color: var(--text-light); border: 1px solid var(--ink-3); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; max-width: 100%;">
+        <option value="9">🗣️ Comunicação Empresarial (Geral)</option>
+        <option value="21">⚽ Educação Física (Esportes)</option>
+        <option value="17">⚛️ Física (Ciências e Natureza)</option>
+        <option value="9">⚙️ Gestão de Operações (Geral)</option>
+        <option value="19">📊 Gestão Financeira e Cont. (Matemática)</option>
         <option value="23">📜 História</option>
-        <option value="24">⚖️ Política</option>
+        <option value="18">💡 Inovação e Negócios (Tecnologia)</option>
+        <option value="10">📖 Língua Portuguesa (Literatura)</option>
+        <option value="9">🎯 Marketing Estratégico (Geral)</option>
+        <option value="19">📐 Matemática</option>
+        <option value="random">🧠 Projeto Multidisciplinar (Todas)</option>
       </select>
     </div>
 
+    <!-- ABA DE FICHAS DE ESTUDO -->
     <div id="tab-cards" class="tab-content active">
       <div class="card-header">
         <span class="progress-label" id="card-counter">Ficha 0/10</span>
@@ -55,6 +62,7 @@
       </div>
     </div>
 
+    <!-- ABA DE QUIZ -->
     <div id="tab-quiz" class="tab-content">
       <div id="quiz-area">
         <div class="quiz-header">
@@ -72,6 +80,7 @@
       </div>
     </div>
 
+    <!-- ABA DE COMPETIÇÃO MULTIPLAYER -->
     <div id="tab-comp" class="tab-content">
       <div class="vs-banner">
         <span class="side p1">Jogador 1</span>
@@ -79,6 +88,7 @@
         <span class="side p2">Jogador 2</span>
       </div>
 
+      <!-- SETUP -->
       <div id="comp-setup">
         <h2 id="comp-title">Jogador 1: crie 5 perguntas</h2>
         <p>Perguntas adicionadas: <span id="comp-q-count">0</span>/5</p>
@@ -92,12 +102,14 @@
         </div>
       </div>
 
+      <!-- JOGO -->
       <div id="comp-play" style="display: none;">
         <h3 id="comp-player-turn">Turno do jogador</h3>
         <h2 id="comp-play-q">Pergunta...</h2>
         <div id="comp-options" class="options-grid"></div>
       </div>
 
+      <!-- RESULTADO -->
       <div id="comp-result" style="display: none;">
         <h2>Fim do duelo!</h2>
         <p id="comp-score-p1"></p>
