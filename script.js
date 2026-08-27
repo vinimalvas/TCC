@@ -64,7 +64,7 @@ function cacheElements() {
 }
 
 function toCamel(id) {
-  return id.replace(-([a-z0-9])/g, (_, c) => c.toUpperCase());
+  return id.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
 }
 
 function shuffle(arr) {
